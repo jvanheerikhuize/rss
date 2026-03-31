@@ -65,9 +65,11 @@ function renderHeader() {
   const pagination = getState('pagination');
 
   let title = 'All Articles';
+  let feedError = null;
   if (view === 'feed') {
     const feed = feeds.find(f => f.id === getState('selectedFeedId'));
     title = feed ? feed.title : 'Feed';
+    if (feed?.last_error) feedError = feed.last_error;
   } else if (view === 'folder') {
     const folder = folders.find(f => f.id === getState('selectedFolderId'));
     title = folder ? folder.name : 'Folder';
@@ -83,11 +85,15 @@ function renderHeader() {
     <button class="btn-icon mobile-back-btn" id="btn-back-sidebar">&#8592;</button>
     <h2>${escapeHtml(title)}</h2>
     <span style="font-size: 12px; color: var(--text-muted);">${total}</span>
+    ${feedError ? `<span style="font-size: 11px; color: var(--danger);" title="${escapeHtml(feedError)}">&#9888; Error</span>` : ''}
     <div style="flex:1"></div>
     <input type="search" class="search-input" id="search-input"
       placeholder="Search articles..." style="max-width: 200px;"
       value="${escapeHtml(getState('searchQuery') || '')}">
-    ${view === 'feed' ? `<button class="btn-icon" id="btn-refresh-feed" title="Refresh">&#8635;</button>` : ''}
+    ${view === 'feed' ? `
+      <button class="btn-icon" id="btn-refresh-feed" title="Refresh">&#8635;</button>
+      <button class="btn-icon" id="btn-unsubscribe-feed" title="Unsubscribe" style="color: var(--danger);">&#128465;</button>
+    ` : ''}
     <button class="btn-icon" id="btn-mark-all-read" title="Mark all read">&#10003;</button>
   `);
 
@@ -126,6 +132,31 @@ function renderHeader() {
         showToast(err.message, 'error');
       } finally {
         refreshBtn.textContent = '↻';
+      }
+    });
+  }
+
+  // Unsubscribe button
+  const unsubBtn = $('#btn-unsubscribe-feed');
+  if (unsubBtn) {
+    unsubBtn.addEventListener('click', async () => {
+      const feedId = getState('selectedFeedId');
+      if (!feedId) return;
+      const feeds = getState('feeds') || [];
+      const feed = feeds.find(f => f.id === feedId);
+      if (!confirm(`Unsubscribe from "${feed?.title || 'this feed'}"? All articles will be deleted.`)) return;
+      try {
+        await api.deleteFeed(feedId);
+        setState('selectedFeedId', null);
+        setState('view', 'all');
+        setState('articles', []);
+        location.hash = '#/';
+        const { refreshData } = await import('./sidebar.js');
+        await refreshData();
+        await loadArticles();
+        showToast('Unsubscribed', 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
       }
     });
   }
