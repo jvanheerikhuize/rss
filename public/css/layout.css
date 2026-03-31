@@ -224,6 +224,10 @@
   gap: 8px;
 }
 
+.article-view-empty[hidden] {
+  display: none;
+}
+
 .shortcuts-hint {
   font-size: 12px;
 }
