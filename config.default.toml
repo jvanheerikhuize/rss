@@ -1,0 +1,20 @@
+[server]
+port = 3000
+host = "0.0.0.0"
+
+[database]
+path = "./data/rss.db"
+
+[feeds]
+default_refresh_interval = 1800  # seconds (30 minutes)
+fetch_concurrency = 3
+fetch_timeout = 15000  # ms
+
+[articles]
+retention_days = 90
+extraction_timeout = 10000  # ms
+
+[ai]
+enabled = false
+ollama_url = "http://localhost:11434"
+model = "llama3"

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RSS Reader</title>
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/article.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <script type="module" src="/js/app.js"></script>
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <section class="article-list-panel" id="article-list-panel">
+      <header class="panel-header" id="article-list-header"></header>
+      <div class="article-list" id="article-list"></div>
+    </section>
+    <section class="article-view-panel" id="article-view-panel">
+      <div class="article-view-empty" id="article-view-empty">
+        <p>Select an article to read</p>
+        <p class="shortcuts-hint">Press <kbd>?</kbd> for keyboard shortcuts</p>
+      </div>
+      <article class="article-view" id="article-view" hidden></article>
+    </section>
+  </div>
+
+  <!-- Subscribe Modal -->
+  <div class="modal-overlay" id="subscribe-modal" hidden>
+    <div class="modal">
+      <h2>Subscribe to Feed</h2>
+      <form id="subscribe-form">
+        <label for="subscribe-url">Feed or website URL</label>
+        <input type="url" id="subscribe-url" placeholder="https://example.com/feed" required autofocus>
+        <label for="subscribe-folder">Folder (optional)</label>
+        <select id="subscribe-folder">
+          <option value="">No folder</option>
+        </select>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary" id="subscribe-submit">Subscribe</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Folder Modal -->
+  <div class="modal-overlay" id="folder-modal" hidden>
+    <div class="modal">
+      <h2>New Folder</h2>
+      <form id="folder-form">
+        <label for="folder-name">Folder name</label>
+        <input type="text" id="folder-name" placeholder="My Folder" required autofocus>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <div class="modal-overlay" id="shortcuts-modal" hidden>
+    <div class="modal modal-wide">
+      <h2>Keyboard Shortcuts</h2>
+      <div class="shortcuts-grid">
+        <div><kbd>j</kbd> / <kbd>k</kbd></div><div>Next / Previous article</div>
+        <div><kbd>s</kbd></div><div>Toggle star</div>
+        <div><kbd>m</kbd></div><div>Toggle read/unread</div>
+        <div><kbd>v</kbd></div><div>Open original in new tab</div>
+        <div><kbd>r</kbd></div><div>Refresh current feed</div>
+        <div><kbd>/</kbd></div><div>Focus search</div>
+        <div><kbd>a</kbd></div><div>Subscribe to feed</div>
+        <div><kbd>Esc</kbd></div><div>Close modal / deselect</div>
+        <div><kbd>?</kbd></div><div>Show this help</div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-close-modal>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container"></div>
+</body>
+</html>
