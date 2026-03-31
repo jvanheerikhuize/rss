@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { getDb } from '../db/index.js';
 import { extractArticleContent } from '../services/article-extractor.js';
+import { summarizeArticle } from '../services/summarizer.js';
+import config from '../config.js';
 import { NotFoundError, ValidationError } from '../utils/errors.js';
 
 const router = Router();
@@ -65,7 +67,7 @@ router.get('/', (req, res) => {
 
   sql = `
     SELECT a.id, a.feed_id, a.guid, a.title, a.url, a.author, a.summary,
-           a.word_count, a.reading_time_minutes, a.is_read, a.is_starred,
+           a.ai_summary, a.word_count, a.reading_time_minutes, a.is_read, a.is_starred,
            a.reading_position, a.published_at, a.created_at,
            f.title as feed_title, f.favicon_url as feed_favicon
     FROM articles a
@@ -141,6 +143,23 @@ router.patch('/:id', (req, res) => {
 
   const updated = db.prepare('SELECT * FROM articles WHERE id = ?').get(article.id);
   res.json(updated);
+});
+
+router.post('/:id/summarize', async (req, res, next) => {
+  try {
+    if (!config.ai.enabled) {
+      throw new ValidationError('AI features are disabled. Set ai.enabled = true in config.');
+    }
+
+    const db = getDb();
+    const article = db.prepare('SELECT id FROM articles WHERE id = ?').get(req.params.id);
+    if (!article) throw new NotFoundError('Article not found');
+
+    const aiSummary = await summarizeArticle(article.id);
+    res.json({ ai_summary: aiSummary });
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.post('/mark-read', (req, res) => {

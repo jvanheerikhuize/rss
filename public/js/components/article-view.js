@@ -71,8 +71,10 @@ function renderArticle(article) {
           ${article.is_read ? '&#9675; Mark Unread' : '&#9679; Mark Read'}
         </button>
         ${article.url ? `<a class="btn btn-ghost" href="${escapeAttr(article.url)}" target="_blank" rel="noopener">&#8599; Original</a>` : ''}
+        <button class="btn btn-ghost" id="btn-summarize">&#9889; ${article.ai_summary ? 'Re-summarize' : 'Summarize'}</button>
       </div>
     </div>
+    ${article.ai_summary ? `<div class="article-ai-summary"><strong>AI Summary:</strong> ${escapeHtml(article.ai_summary)}</div>` : '<div class="article-ai-summary" id="ai-summary-block" hidden></div>'}
     <div class="article-content">${content}</div>
   `);
 
@@ -100,6 +102,26 @@ function renderArticle(article) {
     const { refreshData } = await import('./sidebar.js');
     refreshData();
     renderArticle(article);
+  });
+
+  // Summarize
+  $('#btn-summarize', viewEl).addEventListener('click', async () => {
+    const btn = $('#btn-summarize', viewEl);
+    btn.disabled = true;
+    btn.textContent = 'Summarizing...';
+    try {
+      const { ai_summary } = await api.summarizeArticle(article.id);
+      article.ai_summary = ai_summary;
+      const articles = getState('articles').map(a =>
+        a.id === article.id ? { ...a, ai_summary } : a
+      );
+      setState('articles', articles);
+      renderArticle(article);
+    } catch (err) {
+      showToast(err.message, 'error');
+      btn.disabled = false;
+      btn.textContent = '\u26A1 Summarize';
+    }
   });
 
   // Reading position tracking

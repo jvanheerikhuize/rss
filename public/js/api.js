@@ -33,6 +33,7 @@ export const api = {
   },
   getArticle: (id) => request(`/articles/${id}`),
   updateArticle: (id, data) => request(`/articles/${id}`, { method: 'PATCH', body: data }),
+  summarizeArticle: (id) => request(`/articles/${id}/summarize`, { method: 'POST' }),
   markRead: (data) => request('/articles/mark-read', { method: 'POST', body: data }),
 
   // Folders
